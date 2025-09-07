@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons-vue'
 import OAuthIcons from './icons/OAuthIcons.vue'
 import CompanyLogos from './icons/CompanyLogos.vue'
+import BootstrapIcons from './icons/BootstrapIcons.vue'
 
 interface Props {
   icon: string
@@ -73,6 +74,20 @@ const iconInfo = computed(() => {
     return { 
       type: 'oauth', 
       provider,
+      size: pixelSize,
+      class: `${sizeClasses[props.size || 'md']} ${props.class || ''}`
+    }
+  }
+  
+  // 检查是否是Bootstrap图标
+  if (props.icon.startsWith('bootstrap:') || props.icon.startsWith('bi:')) {
+    const iconName = props.icon.replace(/^(bootstrap:|bi:)/, '')
+    // 将CSS尺寸转换为数字像素
+    const sizeMap = { sm: 16, md: 20, lg: 24 }
+    const pixelSize = sizeMap[props.size || 'md']
+    return { 
+      type: 'bootstrap', 
+      name: iconName,
       size: pixelSize,
       class: `${sizeClasses[props.size || 'md']} ${props.class || ''}`
     }
@@ -163,6 +178,14 @@ const iconInfo = computed(() => {
     :provider="props.icon.replace('oauth:', '')" 
     :size="props.size === 'sm' ? 16 : props.size === 'lg' ? 24 : 20"
     :class="`${sizeClasses[props.size || 'md']} ${props.class || ''}`"
+  />
+  
+  <!-- Bootstrap 图标 -->
+  <BootstrapIcons 
+    v-else-if="props.icon && (props.icon.startsWith('bootstrap:') || props.icon.startsWith('bi:'))"
+    :name="props.icon.replace(/^(bootstrap:|bi:)/, '')" 
+    :size="props.size === 'sm' ? 16 : props.size === 'lg' ? 24 : 20"
+    :class="props.class || ''"
   />
   
   <!-- Ant Design 图标 -->

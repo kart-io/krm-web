@@ -180,6 +180,12 @@ const router = createRouter({
       meta: { requiresAuth: true, title: '菜单管理' }
     },
     {
+      path: '/system/modal-examples',
+      name: 'modal-examples',
+      component: () => import('../components/modal/UnifiedModalExamples.vue'),
+      meta: { requiresAuth: true, title: '统一模态框示例' }
+    },
+    {
       path: '/system/users',
       name: 'user-management',
       component: () => import('../views/system/UserManagementView.vue'),

@@ -420,6 +420,7 @@ const toggleStatus = (row: TableMenuItem) => {
         label="ID"
         placeholder="唯一标识符"
         required
+        :inline="true"
       />
       
       <FormField
@@ -427,23 +428,27 @@ const toggleStatus = (row: TableMenuItem) => {
         label="标题"
         placeholder="菜单标题"
         required
+        :inline="true"
       />
       
       <FormField
         v-model="newMenuItem.path"
         label="路径"
         placeholder="/path/to/page"
+        :inline="true"
       />
       
-      <div class="form-field">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          图标 <span class="text-red-500">*</span>
+      <div class="form-field form-field-inline">
+        <label class="inline-label text-sm font-medium text-gray-700 after:content-[' *'] after:text-red-500">
+          图标
         </label>
-        <SimpleIconPicker 
-          v-model="newMenuItem.icon" 
-          size="md"
-          show-label
-        />
+        <div class="inline-input">
+          <SimpleIconPicker 
+            v-model="newMenuItem.icon" 
+            size="md"
+            show-label
+          />
+        </div>
       </div>
       
       <FormField
@@ -452,29 +457,32 @@ const toggleStatus = (row: TableMenuItem) => {
         type="textarea"
         placeholder="菜单描述"
         :rows="2"
+        :inline="true"
       />
       
-      <div class="form-field">
-        <label class="block text-sm font-medium text-gray-700 mb-2">权限</label>
-        <div class="flex space-x-2 mb-2">
-          <input
-            v-model="permissionInput"
-            type="text"
-            placeholder="输入权限代码"
-            class="input-field flex-1"
-            @keyup.enter="addPermission"
-          />
-          <button @click="addPermission" class="btn-secondary">添加</button>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <span 
-            v-for="permission in newMenuItem.permissions" 
-            :key="permission"
-            class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded flex items-center space-x-1"
-          >
-            <span>{{ permission }}</span>
-            <button @click="removePermission(permission)" class="text-blue-600 hover:text-blue-800">×</button>
-          </span>
+      <div class="form-field form-field-inline">
+        <label class="inline-label text-sm font-medium text-gray-700">权限</label>
+        <div class="inline-input">
+          <div class="flex space-x-2 mb-2">
+            <input
+              v-model="permissionInput"
+              type="text"
+              placeholder="输入权限代码"
+              class="input-field flex-1"
+              @keyup.enter="addPermission"
+            />
+            <button @click="addPermission" class="btn-secondary">添加</button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <span 
+              v-for="permission in newMenuItem.permissions" 
+              :key="permission"
+              class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded flex items-center space-x-1"
+            >
+              <span>{{ permission }}</span>
+              <button @click="removePermission(permission)" class="text-blue-600 hover:text-blue-800">×</button>
+            </span>
+          </div>
         </div>
       </div>
       
@@ -483,6 +491,7 @@ const toggleStatus = (row: TableMenuItem) => {
         label="排序"
         type="number"
         :min="1"
+        :inline="true"
       />
       
       <FormField
@@ -490,6 +499,7 @@ const toggleStatus = (row: TableMenuItem) => {
         label="状态"
         type="checkbox"
         placeholder="启用此菜单"
+        :inline="true"
       />
     </FormModal>
 
@@ -519,6 +529,25 @@ const toggleStatus = (row: TableMenuItem) => {
 </template>
 
 <style scoped>
+/* Form field styles for consistent label alignment */
+.form-field {
+  @apply mb-3;
+}
+
+.form-field-inline {
+  @apply flex items-start mb-4;
+  gap: 12px;
+}
+
+.inline-label {
+  @apply flex-shrink-0 pt-2 text-right;
+  width: 80px !important;
+}
+
+.inline-input {
+  @apply flex-1;
+}
+
 :deep(.vxe-table) {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }

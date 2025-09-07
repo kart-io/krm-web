@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 const showPicker = ref(false)
 const searchQuery = ref('')
-const activeTab = ref<'emoji' | 'lucide' | 'company'>('emoji')
+const activeTab = ref<'emoji' | 'lucide' | 'company' | 'bootstrap'>('emoji')
 
 // Emoji 图标分类
 const emojiCategories = {
@@ -146,6 +146,74 @@ const companyLogos = {
   }
 }
 
+// Bootstrap Icons 分类
+const bootstrapIcons = {
+  'common': {
+    name: '常用',
+    icons: [
+      'house', 'gear', 'person', 'folder', 'file-text', 'search', 'plus', 
+      'pencil', 'trash', 'download', 'upload', 'save', 'check', 'x', 
+      'info-circle', 'exclamation-triangle', 'bell'
+    ]
+  },
+  'interface': {
+    name: '界面',
+    icons: [
+      'menu-app', 'grid', 'list', 'table', 'kanban', 'layout-sidebar',
+      'layout-three-columns', 'window', 'fullscreen', 'fullscreen-exit',
+      'arrows-fullscreen', 'arrows-collapse'
+    ]
+  },
+  'navigation': {
+    name: '导航',
+    icons: [
+      'arrow-left', 'arrow-right', 'arrow-up', 'arrow-down', 
+      'chevron-left', 'chevron-right', 'chevron-up', 'chevron-down',
+      'caret-left', 'caret-right', 'caret-up', 'caret-down'
+    ]
+  },
+  'communication': {
+    name: '通讯',
+    icons: [
+      'chat', 'chat-dots', 'envelope', 'telephone', 'phone', 
+      'chat-left-text', 'chat-right-text', 'send', 'reply', 
+      'forward', 'share'
+    ]
+  },
+  'media': {
+    name: '媒体',
+    icons: [
+      'play', 'pause', 'stop', 'skip-backward', 'skip-forward',
+      'volume-up', 'volume-down', 'volume-mute', 'camera', 'image',
+      'film', 'music-note'
+    ]
+  },
+  'system': {
+    name: '系统',
+    icons: [
+      'cpu', 'memory', 'hdd', 'server', 'database', 'cloud', 
+      'shield', 'lock', 'unlock', 'key', 'wifi', 'ethernet',
+      'router', 'modem'
+    ]
+  },
+  'business': {
+    name: '商务',
+    icons: [
+      'briefcase', 'building', 'shop', 'cart', 'credit-card',
+      'currency-dollar', 'graph-up', 'graph-down', 'pie-chart',
+      'bar-chart', 'clipboard-data'
+    ]
+  },
+  'tools': {
+    name: '工具',
+    icons: [
+      'tools', 'hammer', 'wrench', 'screwdriver', 'rulers',
+      'scissors', 'brush', 'paint-bucket', 'eyedropper',
+      'magic', 'bug'
+    ]
+  }
+}
+
 const buttonSize = computed(() => {
   switch (props.size) {
     case 'sm': return 'w-8 h-8'
@@ -191,7 +259,7 @@ const currentIcons = computed(() => {
       }
     })
     return filtered
-  } else {
+  } else if (activeTab.value === 'company') {
     // company logos
     if (!searchQuery.value) return companyLogos
     
@@ -199,6 +267,20 @@ const currentIcons = computed(() => {
     Object.entries(companyLogos).forEach(([key, category]) => {
       const filteredIcons = category.icons.filter(icon => 
         icon.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      )
+      if (filteredIcons.length > 0) {
+        filtered[key] = { ...category, icons: filteredIcons }
+      }
+    })
+    return filtered
+  } else {
+    // bootstrap icons
+    if (!searchQuery.value) return bootstrapIcons
+    
+    const filtered: Record<string, any> = {}
+    Object.entries(bootstrapIcons).forEach(([key, category]) => {
+      const filteredIcons = category.icons.filter(icon => 
+        icon.toLowerCase().includes(searchQuery.value.toLowerCase())
       )
       if (filteredIcons.length > 0) {
         filtered[key] = { ...category, icons: filteredIcons }
@@ -215,7 +297,11 @@ const selectIcon = (event: Event, icon: string | { name: string, component: stri
   
   let value: string
   if (typeof icon === 'string') {
-    value = icon
+    if (activeTab.value === 'bootstrap') {
+      value = `bi:${icon}`
+    } else {
+      value = icon
+    }
   } else {
     if (activeTab.value === 'lucide') {
       value = `lucide:${icon.component}`
@@ -383,6 +469,16 @@ const getLabelText = (iconValue: string): string => {
           >
             品牌
           </button>
+          <button
+            @click.stop="activeTab = 'bootstrap'"
+            class="px-2 py-1 text-xs rounded transition-colors"
+            :class="activeTab === 'bootstrap' 
+              ? 'bg-kubernetes-100 text-kubernetes-700' 
+              : 'text-gray-600 hover:text-gray-900'"
+            type="button"
+          >
+            Bootstrap
+          </button>
         </div>
       </div>
 
@@ -432,7 +528,7 @@ const getLabelText = (iconValue: string): string => {
             </div>
             
             <!-- 公司 Logo -->
-            <div v-else class="grid grid-cols-6 gap-1">
+            <div v-else-if="activeTab === 'company'" class="grid grid-cols-6 gap-1">
               <button
                 v-for="icon in (category as any).icons"
                 :key="icon.component"
@@ -443,6 +539,24 @@ const getLabelText = (iconValue: string): string => {
               >
                 <IconRenderer 
                   :icon="`company:${icon.component}`"
+                  size="sm"
+                  class="text-gray-700"
+                />
+              </button>
+            </div>
+            
+            <!-- Bootstrap 图标 -->
+            <div v-else class="grid grid-cols-8 gap-1">
+              <button
+                v-for="icon in (category as any).icons"
+                :key="icon"
+                @click="selectIcon($event, icon)"
+                class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 transition-colors"
+                :title="icon"
+                type="button"
+              >
+                <IconRenderer 
+                  :icon="`bi:${icon}`"
                   size="sm"
                   class="text-gray-700"
                 />

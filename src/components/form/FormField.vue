@@ -15,13 +15,15 @@ interface Props {
   max?: number
   step?: number
   help?: string
+  inline?: boolean // 新增 inline 属性，控制是否行内布局
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'text',
   required: false,
   disabled: false,
-  rows: 3
+  rows: 3,
+  inline: false
 })
 
 const emit = defineEmits<{
@@ -56,14 +58,19 @@ const inputClasses = computed(() => [
 </script>
 
 <template>
-  <div class="form-field">
+  <div class="form-field" :class="{ 'form-field-inline': inline }">
     <label 
       :for="inputId" 
-      class="block text-sm font-medium text-gray-700 mb-2"
-      :class="{ 'after:content-[\' *\'] after:text-red-500': required }"
+      class="text-sm font-medium text-gray-700"
+      :class="[
+        { 'after:content-[\' *\'] after:text-red-500': required },
+        inline ? 'inline-label' : 'block mb-2'
+      ]"
     >
       {{ label }}
     </label>
+    
+    <div :class="inline ? 'inline-input' : ''">
 
     <!-- 文本输入 -->
     <input
@@ -134,18 +141,42 @@ const inputClasses = computed(() => [
       />
       <span class="text-sm text-gray-700">{{ placeholder }}</span>
     </label>
+    </div>
 
-    <!-- 帮助文本 -->
-    <p v-if="help && !error" class="mt-1 text-sm text-gray-500">{{ help }}</p>
-    
-    <!-- 错误信息 -->
-    <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
+    <!-- 帮助文本和错误信息 -->
+    <div v-if="inline" class="inline-feedback">
+      <p v-if="help && !error" class="text-sm text-gray-500">{{ help }}</p>
+      <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+    </div>
+    <div v-else>
+      <p v-if="help && !error" class="mt-1 text-sm text-gray-500">{{ help }}</p>
+      <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .form-field {
   @apply mb-3;
+}
+
+/* 行内布局样式 */
+.form-field-inline {
+  @apply flex items-start mb-4;
+  gap: 12px;
+}
+
+.inline-label {
+  @apply flex-shrink-0 pt-2 text-right;
+  width: 80px !important;
+}
+
+.inline-input {
+  @apply flex-1;
+}
+
+.inline-feedback {
+  @apply w-20 flex-shrink-0;
 }
 
 .input-field {
