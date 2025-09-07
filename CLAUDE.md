@@ -135,6 +135,48 @@ const clusters = await kubernetesApi.getClusters()
 const pods = await kubernetesApi.getPods(namespace)
 ```
 
+### Form Styling Patterns
+When creating forms with consistent label alignment, follow these patterns:
+
+**Using FormField Component (Recommended)**:
+```vue
+<FormField
+  v-model="formData.field"
+  label="Field Label"
+  placeholder="Enter value"
+  :inline="true"
+  required
+/>
+```
+
+**Custom Form Fields with Inline Layout**:
+When using custom components that can't use FormField, ensure consistent styling:
+```vue
+<div class="form-field form-field-inline">
+  <label class="inline-label text-sm font-medium text-gray-700">Label</label>
+  <div class="inline-input">
+    <CustomComponent v-model="value" />
+  </div>
+</div>
+```
+
+**Important**: FormField component uses scoped CSS. When mixing FormField components with custom form fields in the same view, copy the form field styles to your view's scoped CSS:
+```css
+.form-field-inline {
+  @apply flex items-start mb-4;
+  gap: 12px;
+}
+
+.inline-label {
+  @apply flex-shrink-0 pt-2 text-right;
+  width: 80px !important;
+}
+
+.inline-input {
+  @apply flex-1;
+}
+```
+
 ### TypeScript Interface Conventions
 - Interface names use descriptive suffixes: `ClusterInfo`, `PodInfo`, `DeploymentInfo`
 - All API responses have corresponding TypeScript interfaces
