@@ -31,6 +31,7 @@ npm run preview
 ## Architecture Overview
 
 ### Technology Stack
+
 - **Frontend**: Vue 3 with Composition API and TypeScript
 - **Build Tool**: Vite with modern ES modules
 - **UI Framework**: VxeTable for data tables + Tailwind CSS for styling
@@ -44,26 +45,31 @@ npm run preview
 The application follows a modular architecture with clear separation of concerns:
 
 #### Core Layout System
+
 - **App.vue**: Main layout controller with conditional rendering for login/authenticated states
 - **Sidebar Component**: Navigation with hierarchical menu structure
 - **Authentication Flow**: Route guards redirect unauthenticated users to login
 
 #### Data Layer Architecture
+
 - **Mock/API Hybrid System**: `src/services/kubernetesApi.ts` provides unified interface
 - **Mock Configuration**: `src/services/config.ts` controls mock vs real API calls
 - **Data Caching**: Mock data is cached and can be dynamically updated
 - **Authentication Store**: Pinia store manages auth state, tokens, and localStorage persistence
 
 #### Component Architecture
+
 - **View Components**: Page-level components in `src/views/` for each Kubernetes resource type
-- **Reusable Components**: 
+- **Reusable Components**:
   - `BaseTable.vue`: TypeScript generic VxeTable wrapper with comprehensive props
   - Modal components (`BaseModal.vue`, `FormModal.vue`, `ConfirmDialog.vue`)
   - Form components (`BaseForm.vue`, `FormField.vue`)
   - `IconPicker.vue` and `IconRenderer.vue` for dynamic icon management
 
 #### Table Implementation Standards
+
 All data tables use VxeTable with standardized patterns:
+
 - Consistent column definitions with proper TypeScript typing
 - Unified styling via CSS `:deep()` selectors
 - Standard action columns (View, Edit, Delete buttons)
@@ -73,12 +79,14 @@ All data tables use VxeTable with standardized patterns:
 ### Authentication & Authorization System
 
 **Authentication Flow**:
+
 1. Login form captures credentials
 2. `useAuthStore().login()` calls API or mock authentication
 3. Success: JWT token stored in localStorage, axios headers set, user redirected
 4. Route guards check authentication status on navigation
 
 **Mock Authentication**:
+
 - Predefined credentials: `dukuan/Q_Q727585266`, `admin/admin123`, `user/user123`, `developer/dev123`
 - Mock JWT tokens generated with timestamp and random components
 - All mock tokens considered valid if they start with `mock-jwt-token`
@@ -86,10 +94,11 @@ All data tables use VxeTable with standardized patterns:
 ### Styling System
 
 **CSS Architecture**:
+
 - **Tailwind CSS**: Utility-first framework for rapid development
 - **Custom CSS Classes**: Unified typography classes in `src/assets/main.css`:
   - `.app-page-title`, `.app-page-subtitle`: Page-level headers
-  - `.app-card-title`, `.app-modal-title`: Component-level headers  
+  - `.app-card-title`, `.app-modal-title`: Component-level headers
   - `.app-label`, `.app-value`: Form and data labels
 - **VxeTable Styling**: Consistent `:deep()` overrides for professional appearance
 - **Component Scoped Styles**: Each view uses scoped CSS for component-specific styling
@@ -97,11 +106,13 @@ All data tables use VxeTable with standardized patterns:
 ### Mock Data System
 
 **Configuration Management**:
+
 - `MockConfigPanel.vue`: Development-only UI for toggling mock/real API calls
 - `src/services/config.ts`: Centralized mock configuration state
 - Environment-based switching between mock and production API endpoints
 
 **Data Generation**:
+
 - `src/services/mockData.ts`: Comprehensive mock data for all Kubernetes resources
 - Dynamic data updates for deployment scaling, resource metrics
 - Realistic API response delays for development testing
@@ -109,7 +120,9 @@ All data tables use VxeTable with standardized patterns:
 ## Important Development Patterns
 
 ### Table Component Usage
+
 When creating new tables, follow the established VxeTable pattern:
+
 ```vue
 <vxe-table :data="tableData" border stripe height="500" size="small">
   <vxe-column type="checkbox" width="50"></vxe-column>
@@ -128,7 +141,9 @@ When creating new tables, follow the established VxeTable pattern:
 ```
 
 ### API Service Pattern
+
 All API calls go through `kubernetesApi` service which automatically handles mock/real API switching:
+
 ```typescript
 // Service automatically chooses mock or real API based on configuration
 const clusters = await kubernetesApi.getClusters()
@@ -136,9 +151,11 @@ const pods = await kubernetesApi.getPods(namespace)
 ```
 
 ### Form Styling Patterns
+
 When creating forms with consistent label alignment, follow these patterns:
 
 **Using FormField Component (Recommended)**:
+
 ```vue
 <FormField
   v-model="formData.field"
@@ -151,9 +168,10 @@ When creating forms with consistent label alignment, follow these patterns:
 
 **Custom Form Fields with Inline Layout**:
 When using custom components that can't use FormField, ensure consistent styling:
+
 ```vue
 <div class="form-field form-field-inline">
-  <label class="inline-label text-sm font-medium text-gray-700">Label</label>
+  <label class="text-sm font-medium text-gray-700 inline-label">Label</label>
   <div class="inline-input">
     <CustomComponent v-model="value" />
   </div>
@@ -161,6 +179,7 @@ When using custom components that can't use FormField, ensure consistent styling
 ```
 
 **Important**: FormField component uses scoped CSS. When mixing FormField components with custom form fields in the same view, copy the form field styles to your view's scoped CSS:
+
 ```css
 .form-field-inline {
   @apply flex items-start mb-4;
@@ -178,6 +197,7 @@ When using custom components that can't use FormField, ensure consistent styling
 ```
 
 ### TypeScript Interface Conventions
+
 - Interface names use descriptive suffixes: `ClusterInfo`, `PodInfo`, `DeploymentInfo`
 - All API responses have corresponding TypeScript interfaces
 - Generic components use proper TypeScript generics: `T extends Record<string, any>`
@@ -204,12 +224,13 @@ src/
 
 **Node.js Requirements**: ^20.19.0 || >=22.12.0
 **Package Manager**: npm (lockfile: package-lock.json)
-**Dev Server**: http://localhost:5173 (Vite default)
+**Dev Server**: <http://localhost:5173> (Vite default)
 **Browser Requirements**: Modern browsers with ES2020+ support
 
 ## Testing Approach
 
 The application uses mock data for development and testing:
+
 - Toggle mock mode via the floating MockConfigPanel (development only)
 - Mock authentication with predefined user credentials
 - Realistic API delays and error simulation

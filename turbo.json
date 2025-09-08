@@ -1,0 +1,23 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "build-only": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["^type-check", "^lint"]
+    },
+    "type-check": {
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "preview": {
+      "cache": false
+    }
+  }
+}
+

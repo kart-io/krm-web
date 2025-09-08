@@ -1,9 +1,26 @@
 import axios from 'axios'
 
-// Create axios instance with base configuration
+// Resolve API base URL from env/query with sensible fallbacks
+const resolveBaseUrl = (): string => {
+  try {
+    const urlParams = new URLSearchParams(window.location.search)
+    const paramBase = urlParams.get('apiBase')
+    if (paramBase) return paramBase
+  } catch {
+    // ignore if not in browser
+  }
+
+  const envBase = import.meta.env.VITE_API_BASE_URL as string | undefined
+  if (envBase && envBase.length > 0) return envBase
+
+  // Defaults by mode
+  if (import.meta.env.DEV) return 'http://localhost:3000/api'
+  return 'http://www.kubeasy.com/api'
+}
+
 const api = axios.create({
-  baseURL: 'http://www.kubeasy.com/api', // Default API base URL
-  timeout: 10000,
+  baseURL: resolveBaseUrl(),
+  timeout: Number(import.meta.env.VITE_TIMEOUT_MS ?? 10000),
   headers: {
     'Content-Type': 'application/json',
   },
