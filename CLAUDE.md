@@ -12,10 +12,15 @@ KubeEasy is a modern Vue 3 Kubernetes dashboard application with TypeScript supp
 # Development server with hot reload
 npm run dev
 
+# Development server with different modes
+npm run dev:mock      # Force mock mode enabled
+npm run dev:staging   # Staging environment
+npm run dev:prod      # Production environment
+
 # Type checking only
 npm run type-check
 
-# Build for production (includes type checking)
+# Build for production (includes type checking via turbo)
 npm run build
 
 # Build without type checking
@@ -34,11 +39,12 @@ npm run preview
 
 - **Frontend**: Vue 3 with Composition API and TypeScript
 - **Build Tool**: Vite with modern ES modules
-- **UI Framework**: VxeTable for data tables + Tailwind CSS for styling
+- **UI Framework**: VxeTable for data tables + Ant Design Vue components + Tailwind CSS for styling
 - **State Management**: Pinia stores
 - **Routing**: Vue Router with authentication guards
 - **HTTP Client**: Axios with mock/real API switching
-- **Icons**: Lucide Vue Next
+- **Icons**: Lucide Vue Next + Ant Design Icons + Bootstrap Icons
+- **Build**: Turbo for monorepo-style build optimization
 
 ### Application Structure
 
@@ -84,6 +90,7 @@ All data tables use VxeTable with standardized patterns:
 2. `useAuthStore().login()` calls API or mock authentication
 3. Success: JWT token stored in localStorage, axios headers set, user redirected
 4. Route guards check authentication status on navigation
+5. State persisted in localStorage with keys: `kubeasy-token`, `kubeasy-user`
 
 **Mock Authentication**:
 
@@ -91,11 +98,19 @@ All data tables use VxeTable with standardized patterns:
 - Mock JWT tokens generated with timestamp and random components
 - All mock tokens considered valid if they start with `mock-jwt-token`
 
+**OAuth Integration**:
+
+- OAuth login support with `loginWithOAuth()` method
+- Provider-based authentication (GitHub, Google, etc.)
+- Mock OAuth implementation for development testing
+
 ### Styling System
 
 **CSS Architecture**:
 
-- **Tailwind CSS**: Utility-first framework for rapid development
+- **Tailwind CSS**: Utility-first framework with custom Kubernetes color palette and typography system
+- **Custom Typography**: Unified font sizes in `tailwind.config.js`: `app-xs` through `app-3xl`
+- **Kubernetes Colors**: Custom color palette with `kubernetes.500` as primary blue (#326ce5)
 - **Custom CSS Classes**: Unified typography classes in `src/assets/main.css`:
   - `.app-page-title`, `.app-page-subtitle`: Page-level headers
   - `.app-card-title`, `.app-modal-title`: Component-level headers
@@ -108,8 +123,12 @@ All data tables use VxeTable with standardized patterns:
 **Configuration Management**:
 
 - `MockConfigPanel.vue`: Development-only UI for toggling mock/real API calls
-- `src/services/config.ts`: Centralized mock configuration state
-- Environment-based switching between mock and production API endpoints
+- `src/services/config.ts`: Centralized mock configuration with multiple configuration sources:
+  - URL parameters (`?mock=true/false`) - highest priority
+  - localStorage persistence (`kubeasy-mock-enabled`)
+  - Environment variables (`VITE_MOCK_ENABLED`)
+  - Development mode default (enabled in dev, disabled in prod)
+- Global debug commands available in development: `__kubeasyMockConfig.enable()`, `__kubeasyMockConfig.disable()`, etc.
 
 **Data Generation**:
 
@@ -212,10 +231,23 @@ src/
 │   ├── form/           # Form-related components
 │   └── icons/          # Icon components and utilities
 ├── services/           # API layer and mock data management
-├── stores/             # Pinia stores (auth, etc.)
-├── views/
+│   ├── kubernetesApi.ts # Unified API interface with mock/real switching
+│   ├── config.ts       # Mock configuration management
+│   ├── mockData.ts     # Comprehensive mock data generation
+│   └── api.ts          # Base Axios configuration
+├── stores/             # Pinia stores
+│   ├── auth.ts         # Authentication store with OAuth support
+│   └── counter.ts      # Example counter store
+├── views/              # Page-level components
 │   ├── system/         # System management views (users, roles, menus)
-│   └── *.vue           # Kubernetes resource views
+│   ├── HomeView.vue    # Dashboard with metrics
+│   ├── *View.vue       # Kubernetes resource views (Clusters, Pods, etc.)
+│   └── LoginView.vue   # Authentication interface
+├── config/
+│   └── menu.ts         # Menu configuration
+├── hooks/              # Composable functions
+│   ├── useModal.ts     # Modal management
+│   └── useDrawer.ts    # Drawer management
 └── assets/
     └── main.css        # Global styles and typography system
 ```

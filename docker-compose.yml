@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  kubeasy-vue3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: kubeasy-dashboard
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.docker.compose.project=kubeasy"
+      - "com.docker.compose.service=frontend"
+    networks:
+      - kubeasy-network
+
+  # Example backend service (uncomment and configure as needed)
+  # kubeasy-backend:
+  #   image: kubeasy/backend:latest
+  #   container_name: kubeasy-backend
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - DB_HOST=postgres
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - kubeasy-network
+
+  # Example database service (uncomment and configure as needed)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: kubeasy-postgres
+  #   environment:
+  #     POSTGRES_DB: kubeasy
+  #     POSTGRES_USER: kubeasy
+  #     POSTGRES_PASSWORD: changeme
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - kubeasy-network
+
+networks:
+  kubeasy-network:
+    driver: bridge
+
+# Uncomment if using database
+# volumes:
+#   postgres_data:
